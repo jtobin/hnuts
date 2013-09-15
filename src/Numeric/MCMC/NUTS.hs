@@ -1,8 +1,9 @@
 -- | See Hoffman, Gelman (2011) The No U-Turn Sampler: Adaptively Setting Path
 --   Lengths in Hamiltonian Monte Carlo.
 
-module NUTS where
+module Numeric.MCMC.NUTS where
 
+import Control.Monad
 import Control.Monad
 import Control.Monad.Primitive
 import System.Random.MWC -- FIXME change to Prob monad
