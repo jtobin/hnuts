@@ -21,11 +21,12 @@ nuts :: PrimMonad m
      => Density
      -> Gradient
      -> Int
+     -> Double
      -> Parameters
      -> Gen (PrimState m)
      -> m Parameters
-nuts lTarget glTarget m t g = do
-  e <- findReasonableEpsilon lTarget glTarget t g
+nuts lTarget glTarget m e t g = do
+  -- e <- findReasonableEpsilon lTarget glTarget t g
   let go 0 t0 = return t0
       go n t0 = nutsKernel lTarget glTarget e t0 g >>= go (pred n)
 
@@ -119,9 +120,9 @@ findReasonableEpsilon lTarget glTarget t0 g = do
   let (t1, r1) = leapfrog glTarget (t0, r0) 1.0
       a        = 2 * indicate (acceptanceRatio lTarget t0 t1 r0 r1 > 0.5) - 1
 
-      go e t r | (acceptanceRatio lTarget t0 t r0 r) ^ a > 2 ^ (-a) = 
+      go e t r | (acceptanceRatio lTarget t0 t r0 r) ^^ a > 2 ^^ (-a) = 
                    let (tn, rn) = leapfrog glTarget (t, r) e
-                   in  go (2 ^ a * e) tn rn 
+                   in  go (2 ^^ a * e) tn rn 
                | otherwise = e
 
   return $ go 1.0 t1 r1

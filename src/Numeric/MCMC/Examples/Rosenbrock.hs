@@ -1,4 +1,5 @@
 import Numeric.AD
+import Numeric.MCMC.NUTS
 import System.Random.MWC
 
 lTarget :: RealFloat a => [a] -> a
@@ -8,7 +9,7 @@ glTarget :: [Double] -> [Double]
 glTarget = grad lTarget
 
 inits :: [Double]
-inits = [5.0, 5.0]
+inits = [0.0, 0.0]
 
 epochs :: Int
 epochs = 100
