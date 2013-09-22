@@ -4,8 +4,9 @@
 module Numeric.MCMC.NUTS where
 
 import Control.Monad
+import Control.Monad.Loops
 import Control.Monad.Primitive
-import System.Random.MWC -- FIXME change to Prob monad
+import System.Random.MWC -- FIXME change to Prob monad (Mersenne64)
 import System.Random.MWC.Distributions
 import Statistics.Distribution.Normal
 
@@ -15,20 +16,35 @@ type Density    = Parameters -> Double
 type Gradient   = Parameters -> Parameters
 type Particle   = (Parameters, Parameters)
 
--- FIXME must be streaming
+newtype BuildTree = BuildTree { 
+    getBuildTree :: ([Double], [Double], [Double], [Double], [Double], Int, Int)
+  }
+
+instance Show BuildTree where
+  show (BuildTree (tm, rm, tp, rp, t', n, s)) = 
+       "\n" ++ "tm: " ++ show tm 
+    ++ "\n" ++ "rm: " ++ show rm
+    ++ "\n" ++ "tp: " ++ show tp
+    ++ "\n" ++ "rp: " ++ show rp
+    ++ "\n" ++ "t': " ++ show t'
+    ++ "\n" ++ "n : " ++ show n
+    ++ "\n" ++ "s : " ++ show s
+
 nuts :: PrimMonad m
      => Density
      -> Gradient
      -> Int
+     -> Double
      -> Parameters
      -> Gen (PrimState m)
-     -> m Parameters
-nuts lTarget glTarget m t g = do
-  e <- findReasonableEpsilon lTarget glTarget t g
-  let go 0 t0 = return t0
-      go n t0 = nutsKernel lTarget glTarget e t0 g >>= go (pred n)
-
-  go m t
+     -> m [Parameters]
+nuts lTarget glTarget m e t g = unfoldrM (kernel e) (m, t)
+  where
+    kernel eps (n, t0) = do
+      t1 <- nutsKernel lTarget glTarget eps t0 g
+      return $ if   n <= 0
+               then Nothing
+               else Just (t0, (pred n, t1))
 
 nutsKernel :: PrimMonad m 
            => Density
@@ -70,20 +86,6 @@ nutsKernel lTarget glTarget e t g = do
         | otherwise = return tm
 
   go (t, t, r0, r0, 0, t, 1, 1) g
-
-newtype BuildTree = BuildTree { 
-    getBuildTree :: ([Double], [Double], [Double], [Double], [Double], Int, Int)
-  }
-
-instance Show BuildTree where
-  show (BuildTree (tm, rm, tp, rp, t', n, s)) = 
-       "\n" ++ "tm: " ++ show tm 
-    ++ "\n" ++ "rm: " ++ show rm
-    ++ "\n" ++ "tp: " ++ show tp
-    ++ "\n" ++ "rp: " ++ show rp
-    ++ "\n" ++ "t': " ++ show t'
-    ++ "\n" ++ "n : " ++ show n
-    ++ "\n" ++ "s : " ++ show s
 
 buildTree 
   :: PrimMonad m 
