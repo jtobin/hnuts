@@ -67,6 +67,20 @@ nutsKernel lTarget glTarget e t g = do
 
   go (t, t, r0, r0, 0, t, 1, 1) g
 
+newtype BuildTree = BuildTree { 
+    getBuildTree :: ([Double], [Double], [Double], [Double], [Double], Int, Int)
+  }
+
+instance Show BuildTree where
+  show (BuildTree (tm, rm, tp, rp, t', n, s)) = 
+       "\n" ++ "tm: " ++ show tm 
+    ++ "\n" ++ "rm: " ++ show rm
+    ++ "\n" ++ "tp: " ++ show tp
+    ++ "\n" ++ "rp: " ++ show rp
+    ++ "\n" ++ "t': " ++ show t'
+    ++ "\n" ++ "n : " ++ show n
+    ++ "\n" ++ "s : " ++ show s
+
 buildTree 
   :: PrimMonad m 
   => Density
@@ -86,7 +100,7 @@ buildTree lTarget glTarget g = go
           auxTgt   = auxilliaryTarget lTarget t0 r0
           n        = indicate (u <= auxTgt)
           s        = indicate (auxTgt > log u - 1000)
-      in  (t0, r0, t0, r0, t, n, s)
+      in  (t0, r0, t0, r0, t0, n, s)
 
     go t r u v j e = do
       z <- uniform g
