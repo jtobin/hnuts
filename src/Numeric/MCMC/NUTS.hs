@@ -4,7 +4,6 @@
 module Numeric.MCMC.NUTS where
 
 import Control.Monad
-import Control.Monad
 import Control.Monad.Primitive
 import System.Random.MWC -- FIXME change to Prob monad
 import System.Random.MWC.Distributions
@@ -106,12 +105,16 @@ buildTree lTarget glTarget g = go
       z <- uniform g
       (tn, rn, tp, rp, t0, n0, s0) <- go t r u v (pred j) e
 
-      if s0 == 1
+      if   s0 == 1
       then do
         (tnn, rnn, tpp, rpp, t1, n1, s1) <- 
           if   v == -1
-          then go tn rn u v (pred j) e
-          else go tp rp u v (pred j) e
+          then do
+            (tnn', rnn', _, _, t1', n1', s1') <- go tn rn u v (pred j) e
+            return (tnn', rnn', tp, rp, t1', n1', s1')
+          else do
+            (   _,    _, tpp', rpp', t1', n1', s1') <- go tp rp u v (pred j) e
+            return (tn, rn, tpp', rpp', t1', n1', s1')
 
         let p  = fromIntegral n1 / fromIntegral (n0 + n1)
             n2 = n0 + n1
