@@ -12,7 +12,7 @@ glTarget :: [Double] -> [Double]
 glTarget = grad lTarget
 
 t0 :: [Double]
-t0 = [1.0, 1.0]
+t0 = [0.0, 0.0]
 
 r0 :: [Double]
 r0 = [0.0, 0.0]
@@ -21,15 +21,15 @@ logu = -0.12840 -- from octave
 u    = exp logu
 v    = -1 :: Double
 
-n = 20   :: Int
+n = 9   :: Int
 e = 0.1 :: Double
 
 runBuildTree :: PrimMonad m => Gen (PrimState m) -> m BuildTree
 runBuildTree g = do
-  liftM BuildTree $ buildTree lTarget glTarget g t0 r0 u v n e
+  liftM BuildTree $ buildTree lTarget glTarget g t0 r0 logu v n e
 
 main = do
-  test <- create >>= nuts lTarget glTarget 1000 0.1 t0
+  test <- withSystemRandom . asGenIO $ nuts lTarget glTarget 1000 0.1 t0
   mapM_ print test
 
 
