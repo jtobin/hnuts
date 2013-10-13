@@ -140,13 +140,6 @@ buildTree lTarget glTarget g t r logu v j e = do
     return (tnn, rnn, tpp, rpp, t2, n2, s2)
   else return (tn, rn, tp, rp, t0, n0, s0)
 
--- | Simulate Hamiltonian dynamics for n steps.
-leapfrogIntegrator :: Int -> Gradient -> Particle -> Double -> Particle
-leapfrogIntegrator n glTarget particle e = go particle n
-  where go state ndisc 
-          | ndisc <= 0 = state
-          | otherwise  = go (leapfrog glTarget state e) (pred n)
-
 -- | Simulate a single step of Hamiltonian dynamics.
 leapfrog :: Gradient -> Particle -> Double -> Particle
 leapfrog glTarget (t, r) e = (tf, rf)
