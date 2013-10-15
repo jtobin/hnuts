@@ -12,8 +12,6 @@ import System.Random.MWC
 import System.Random.MWC.Distributions hiding (gamma)
 import Statistics.Distribution.Normal
 
-import Debug.Trace
-
 type Parameters = [Double] 
 type Density    = Parameters -> Double
 type Gradient   = Parameters -> Parameters
@@ -152,7 +150,7 @@ nutsKernelDualAvg lTarget glTarget e eAvg h m daParams t g = do
           logEm    = mu daParams - sqrt (fromIntegral m) / gamma daParams * hm
           logEbarM = (1 - zeta) * log eAvg + zeta * logEm
 
-  trace (show eAvgNext) $ return (eNext, eAvgNext, hNext, nextPosition)
+  return (eNext, eAvgNext, hNext, nextPosition)
 
 -- | A single iteration of NUTS.
 nutsKernel 
