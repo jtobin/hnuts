@@ -273,7 +273,7 @@ buildTreeDualAvg lTarget glTarget g t r logu v 0 e t0 r0 = do
       joint    = log $ auxilliaryTarget lTarget t1 r1
       n        = indicate (logu <= joint)
       s        = indicate (logu - 1000 <  joint)
-      a        = min 1 (acceptanceRatio lTarget t1 r1 t0 r0)
+      a        = min 1 (acceptanceRatio lTarget t0 t1 r0 r1)
   return (t1, r1, t1, r1, t1, n, s, a, 1)
       
 buildTreeDualAvg lTarget glTarget g t r logu v j e t0 r0 = do
@@ -320,14 +320,13 @@ findReasonableEpsilon lTarget glTarget t0 g = do
   let (t1, r1) = leapfrog glTarget (t0, r0) 1.0
       a        = 2 * indicate (acceptanceRatio lTarget t0 t1 r0 r1 > 0.5) - 1
 
-      go j e t r 
-        | j <= 0 = e -- no infinite loops
+      go e t r 
         | (acceptanceRatio lTarget t0 t r0 r) ^^ a > 2 ^^ (-a) = 
             let (tn, rn) = leapfrog glTarget (t, r) e
-            in  go (pred j) (2 ^^ a * e) tn rn 
+            in  go (2 ^^ a * e) tn rn 
         | otherwise = e
 
-  return $ go 1000 1.0 t1 r1
+  return $ go 1.0 t1 r1
 
 -- | Simulate a single step of Hamiltonian dynamics.
 leapfrog :: Gradient -> Particle -> Double -> Particle

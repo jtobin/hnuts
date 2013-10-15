@@ -73,7 +73,7 @@ genMoves = replicateM 1000 genMove
 
 main = do
   test <- withSystemRandom . asGenIO $ 
-    nutsDualAveraging lTarget glTarget 100 10 t0
+    nutsDualAveraging lTarget glTarget 5000 1500 t0
     -- nuts lTarget glTarget 5000 0.1 t0 
     -- genMovesDa
     -- genMoves
