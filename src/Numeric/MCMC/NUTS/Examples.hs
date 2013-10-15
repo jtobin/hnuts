@@ -10,6 +10,8 @@
 -- ggplot(d, aes(V1, V2)) + geom_point(alpha = 0.05, col = 'darkblue')
 --
 
+module Numeric.MCMC.NUTS.Examples where
+
 import Numeric.AD
 import Numeric.MCMC.NUTS
 import System.Random.MWC
