@@ -1,5 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
-
 -- | See Hoffman, Gelman (2011) The No U-Turn Sampler: Adaptively Setting Path
 --   Lengths in Hamiltonian Monte Carlo.
 
@@ -68,12 +66,13 @@ nutsDualAveraging
 nutsDualAveraging lTarget glTarget n nAdapt t g = do
     e0 <- findReasonableEpsilon lTarget glTarget t g
     let daParams = basicDualAveragingParameters e0 nAdapt
-    unfoldrM (kernel daParams) (1, e0, 1, 0, t)
+    chain <- unfoldrM (kernel daParams) (1, e0, 1, 0, t)
+    return $ drop nAdapt chain
   where
     kernel params (m, e, eAvg, h, t0) = do
       (eNext, eAvgNext, hNext, tNext) <- 
         nutsKernelDualAvg lTarget glTarget e eAvg h m params t0 g
-      return $ if   m > n
+      return $ if   m > n + nAdapt
                then Nothing
                else Just (t0, (succ m, eNext, eAvgNext, hNext, tNext))
 
@@ -136,7 +135,7 @@ nutsKernelDualAvg lTarget glTarget e eAvg h m daParams t g = do
 
   (nextPosition, alpha, nalpha) <- go (t, t, r0, r0, t, 0, 1, 1, 0, 0) g
   
-  let (hNext, eNext, !eAvgNext) =
+  let (hNext, eNext, eAvgNext) =
           if   m <= mAdapt daParams
           then (hm, exp logEm, exp logEbarM)
           else (h, eAvg, eAvg)
@@ -269,7 +268,7 @@ buildTreeDualAvg
 buildTreeDualAvg lTarget glTarget g t r logu v 0 e t0 r0 = do
   let (t1, r1) = leapfrog glTarget (t, r) (v * e)
       joint    = log $ auxilliaryTarget lTarget t1 r1
-      n        = indicate (logu <= joint)
+      n        = indicate (logu < joint)
       s        = indicate (logu - 1000 <  joint)
       a        = min 1 (acceptanceRatio lTarget t0 t1 r0 r1)
   return (t1, r1, t1, r1, t1, n, s, a, 1)
@@ -318,13 +317,14 @@ findReasonableEpsilon lTarget glTarget t0 g = do
   let (t1, r1) = leapfrog glTarget (t0, r0) 1.0
       a        = 2 * indicate (acceptanceRatio lTarget t0 t1 r0 r1 > 0.5) - 1
 
-      go e t r 
+      go j e t r 
+        | j <= 0 = e -- no need to shrink this excessively
         | (acceptanceRatio lTarget t0 t r0 r) ^^ a > 2 ^^ (-a) = 
             let (tn, rn) = leapfrog glTarget (t, r) e
-            in  go (2 ^^ a * e) tn rn 
+            in  go (pred j) (2 ^^ a * e) tn rn 
         | otherwise = e
 
-  return $ go 1.0 t1 r1
+  return $ go 10 1.0 t1 r1
 
 -- | Simulate a single step of Hamiltonian dynamics.
 leapfrog :: Gradient -> Particle -> Double -> Particle
