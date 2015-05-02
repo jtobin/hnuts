@@ -54,5 +54,5 @@ printTrace :: Show a => [a] -> IO ()
 printTrace = mapM_ (putStrLn . filter (`notElem` "[]") . show) 
 
 main :: IO ()
-main = bnnTrace >>= printTrace 
+main = bealeTrace >>= printTrace 
 
