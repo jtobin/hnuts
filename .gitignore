@@ -2,3 +2,7 @@
 *hi
 reference
 *o
+.cabal-sandbox
+dist
+working
+cabal.sandbox.config
