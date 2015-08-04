@@ -6,7 +6,7 @@
 --
 -- require(ggplot2)
 -- system('runhaskell Examples.hs > trace.csv')
--- d = read.csv('../tests/trace.dat', header = F)
+-- d = read.csv('../tests/trace.csv', header = F)
 -- ggplot(d, aes(V1, V2)) + geom_point(alpha = 0.05, col = 'darkblue')
 --
 
