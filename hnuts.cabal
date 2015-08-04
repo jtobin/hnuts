@@ -14,18 +14,16 @@ cabal-version:       >= 1.18
 library
   exposed-modules:
       Numeric.MCMC.NUTS
-    , Numeric.MCMC.NUTS.Examples
 
   other-extensions:
     ScopedTypeVariables
 
   build-depends:
-      base        >= 4.7
-    , monad-loops >= 0.4
-    , primitive   >= 0.5
-    , mwc-random  >= 0.12
-    , statistics  >= 0.10
-    , ad          >= 3.4
+      base
+    , monad-loops
+    , primitive
+    , mwc-random
+    , statistics
 
   hs-source-dirs:
     src

@@ -7,3 +7,4 @@ dist
 working
 cabal.sandbox.config
 tests
+.stack-work
